@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// Simplified Firebase Storage Security Rules for Testing
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Temporarily allow ALL reads and writes to the products folder for testing
+    // WARNING: Change this back before going to production
+    match /products/{allPaths=**} {
+      allow read, write: if true;
+    }
+
+    match /settings/{allPaths=**} {
+      allow read, write: if true;
+    }
+
+    // Deny access to everything else by default
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
