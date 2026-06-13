@@ -70,5 +70,10 @@ service cloud.firestore {
                     
       allow update, delete: if isOwnerOrAdmin();
     }
+    // --- Customer Sessions Collection ---
+    match /customer_sessions/{sessionId} {
+      allow read, create: if true;
+      allow update, delete: if isOwnerOrAdmin();
+    }
   }
 }

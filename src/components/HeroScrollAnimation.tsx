@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { db } from "@/utils/firebase/config";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Ban } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function HeroScrollAnimation() {
   const searchParams = useSearchParams();
-  const tableId = searchParams.get("table");
+  const qrToken = searchParams.get("qr");
   const menuId = searchParams.get("menu");
+  const [sessionError, setSessionError] = useState<string | null>(null);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [images, setImages] = useState<HTMLImageElement[]>([]);
@@ -85,6 +86,64 @@ export function HeroScrollAnimation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Secure QR Session Initialization
+  useEffect(() => {
+    if (qrToken) {
+      const validateQR = async () => {
+        try {
+          const q = query(collection(db, "qrcodes"), where("token", "==", qrToken));
+          const snapshot = await getDocs(q);
+          
+          if (snapshot.empty) {
+            setSessionError("Invalid or Expired QR Code. Please scan the QR placed on your table.");
+            return;
+          }
+
+          const qrDoc = snapshot.docs[0];
+          const qrData = qrDoc.data();
+
+          if (qrData.status !== "active") {
+            setSessionError("This table is currently disabled. Please contact staff.");
+            return;
+          }
+
+          // Check if session already exists in storage for this exact token
+          const existingSessionId = sessionStorage.getItem("qrazy_session_id");
+          const existingSessionToken = sessionStorage.getItem("qrazy_qr_token");
+          
+          if (existingSessionId && existingSessionToken === qrToken) {
+             // Already initialized
+             window.history.replaceState({}, '', '/');
+             return;
+          }
+
+          // Generate Secure Customer Session
+          const sessionRef = await addDoc(collection(db, "customer_sessions"), {
+            qrToken,
+            tableId: qrData.tableNumber || qrData.name || "Unknown Table",
+            menuId: qrData.menuId || "regular",
+            createdAt: new Date(),
+            expiresAt: new Date(Date.now() + 4 * 60 * 60 * 1000), // 4 hours
+            status: "active"
+          });
+
+          sessionStorage.setItem("qrazy_session_id", sessionRef.id);
+          sessionStorage.setItem("qrazy_qr_token", qrToken);
+          sessionStorage.setItem("qrazy_table_id", qrData.tableNumber || qrData.name || "Unknown");
+          sessionStorage.setItem("qrazy_menu_id", qrData.menuId || "regular");
+          
+          // Clear URL parameter so it's not visible or copyable easily
+          window.history.replaceState({}, '', '/');
+        } catch (err) {
+          console.error(err);
+          setSessionError("Failed to validate QR code.");
+        }
+      };
+
+      validateQR();
+    }
+  }, [qrToken]);
+
   useEffect(() => {
     if (images.length === 0) return;
 
@@ -140,6 +199,18 @@ export function HeroScrollAnimation() {
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
   };
 
+  if (sessionError) {
+    return (
+      <div className="w-full h-screen bg-black flex flex-col items-center justify-center text-center p-6 animate-in fade-in zoom-in duration-500">
+        <div className="w-20 h-20 bg-destructive/20 text-destructive rounded-full flex items-center justify-center mb-6 border border-destructive/50">
+          <Ban className="w-10 h-10" />
+        </div>
+        <h1 className="text-3xl font-bold text-white mb-4">Unauthorized Access</h1>
+        <p className="text-muted-foreground text-lg max-w-md">{sessionError}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full" style={{ height: "200vh" }}>
       <div className="sticky top-0 left-0 w-full h-screen overflow-hidden bg-black">
@@ -155,7 +226,7 @@ export function HeroScrollAnimation() {
           </p>
           <div className="pointer-events-auto">
             <Link 
-              href={tableId ? `/menu?table=${tableId}${menuId ? `&menu=${menuId}` : ''}` : "/menu"} 
+              href="/menu" 
               className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 rounded-full text-lg font-bold transition-all hover:scale-105 shadow-[0_0_20px_rgba(var(--primary),0.5)]"
             >
               View Menu <ArrowRight className="w-5 h-5" />

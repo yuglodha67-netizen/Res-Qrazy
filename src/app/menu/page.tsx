@@ -43,31 +43,18 @@ function MenuContent() {
       try { setFavorites(JSON.parse(savedFavs)); } catch (e) {}
     }
 
-    // QR Table Security Validation
-    const urlTableId = searchParams.get("table");
-    if (urlTableId) {
-      // Secure the session in Firestore
-      const secureTableSession = async () => {
-        try {
-          const uid = auth.currentUser?.uid;
-          if (uid) {
-            await setDoc(doc(db, "active_sessions", uid), {
-              tableId: urlTableId,
-              lastActive: new Date()
-            }, { merge: true });
-            setTableId(urlTableId);
-            sessionStorage.setItem("qrazy_active_table", urlTableId);
-          }
-        } catch (err) {
-          console.error("Failed to bind table session");
-        }
-      };
-      secureTableSession();
+    // Zero-Trust Session Validation
+    // The session is created securely in HeroScrollAnimation.tsx
+    // The menu just consumes the already validated session.
+    const sessionId = sessionStorage.getItem("qrazy_session_id");
+    const sessionTable = sessionStorage.getItem("qrazy_table_id");
+    
+    if (sessionId && sessionTable) {
+      setTableId(sessionTable);
     } else {
-      const existingSession = sessionStorage.getItem("qrazy_active_table");
-      if (existingSession) setTableId(existingSession);
+      setTableId(null);
     }
-  }, [searchParams]);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("qrazy_favorites", JSON.stringify(favorites));

@@ -39,12 +39,14 @@ export default function CartPage() {
   useEffect(() => {
     setIsClient(true);
     
-    // Security: Check Table Session
-    const activeTable = sessionStorage.getItem("qrazy_active_table");
-    if (activeTable) {
+    // Security: Check Secure Table Session
+    const activeSession = sessionStorage.getItem("qrazy_session_id");
+    const activeTable = sessionStorage.getItem("qrazy_table_id");
+    if (activeSession && activeTable) {
       setTableId(activeTable);
+      setOrderType("Dine-in");
     } else {
-      // For now, allow access but it will be flagged as "Takeaway" by default or anonymous
+      // Unauthenticated, force Parcel
       setOrderType("Parcel");
     }
 
@@ -171,8 +173,11 @@ export default function CartPage() {
         return;
       }
       
+      const activeSession = sessionStorage.getItem("qrazy_session_id");
+      
       const orderRef = await addDoc(collection(db, "orders"), {
         customerId: customerId, 
+        sessionId: activeSession || null, // Zero-trust binding
         tableId: tableId || "Takeaway",
         table: orderType === "Parcel" ? "Parcel" : (tableId || "Dine-in"),
         phone: phone,

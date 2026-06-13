@@ -15,6 +15,7 @@ export interface QRCodeData {
   section: string;          // e.g., "Outdoor Area"
   description: string;      // Optional description
   url: string;              // The final URL encoded in the QR
+  token?: string;           // Secure token for zero-trust session generation
   status: QRStatus;
   expiryDate: any;          // Firebase Timestamp or null
   menuId: string;           // e.g., "regular", "breakfast", etc.

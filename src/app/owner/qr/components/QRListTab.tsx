@@ -39,6 +39,25 @@ export function QRListTab({ qrcodes, onEdit }: { qrcodes: QRCodeData[], onEdit: 
     }
   };
 
+  const handleRegenerateToken = async (qr: QRCodeData) => {
+    if (!confirm("Are you sure? This will invalidate all printed physical QRs for this table!")) return;
+    try {
+      const newToken = crypto.randomUUID();
+      const baseUrl = window.location.origin;
+      const newUrl = `${baseUrl}/?qr=${newToken}`;
+      
+      await updateDoc(doc(db, "qrcodes", qr.id), { 
+        token: newToken,
+        url: newUrl,
+        updatedAt: new Date()
+      });
+      toast.success("Token regenerated successfully! Old QR codes will no longer work.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to regenerate token.");
+    }
+  };
+
   const copyLink = (url: string) => {
     navigator.clipboard.writeText(url);
     toast.success("Link copied to clipboard!");
@@ -138,6 +157,9 @@ export function QRListTab({ qrcodes, onEdit }: { qrcodes: QRCodeData[], onEdit: 
                   onChange={(e) => {
                     if (e.target.value === "delete") {
                       handleDelete(qr.id);
+                    } else if (e.target.value === "regenerate") {
+                      handleRegenerateToken(qr);
+                      e.target.value = qr.status || "active"; // reset select
                     } else {
                       handleUpdateStatus(qr.id, e.target.value as QRStatus);
                     }
@@ -146,6 +168,7 @@ export function QRListTab({ qrcodes, onEdit }: { qrcodes: QRCodeData[], onEdit: 
                   <option value="active">Make Active</option>
                   <option value="disabled">Disable</option>
                   <option value="archived">Archive</option>
+                  <option value="regenerate" className="text-amber-500 font-bold">Regenerate Token</option>
                   <option value="delete" className="text-destructive font-bold">Delete QR</option>
                 </select>
               </div>

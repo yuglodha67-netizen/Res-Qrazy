@@ -63,11 +63,13 @@ export function QRFormTab({ existingQR, onComplete, onCancel }: Props) {
 
     try {
       const baseUrl = window.location.origin;
-      const scanUrl = `${baseUrl}/?table=${encodeURIComponent(formData.tableNumber || formData.name)}&menu=${encodeURIComponent(formData.menuId)}`;
+      const secureToken = existingQR?.token || crypto.randomUUID();
+      const scanUrl = `${baseUrl}/?qr=${secureToken}`;
       
       const qrData = {
         ...formData,
         url: scanUrl,
+        token: secureToken,
         customization,
         updatedAt: new Date(),
       };
@@ -95,7 +97,7 @@ export function QRFormTab({ existingQR, onComplete, onCancel }: Props) {
 
   // Preview URL generator
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const previewUrl = `${baseUrl}/?table=${encodeURIComponent(formData.tableNumber || formData.name || "preview")}&menu=${encodeURIComponent(formData.menuId)}`;
+  const previewUrl = `${baseUrl}/?qr=${existingQR?.token || 'preview_token'}`;
 
   return (
     <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
