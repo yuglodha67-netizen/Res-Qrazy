@@ -62,8 +62,8 @@ export function QRFormTab({ existingQR, onComplete, onCancel }: Props) {
     const toastId = toast.loading(existingQR ? "Updating QR code..." : "Generating QR code...");
 
     try {
-      const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://qrazy.example.com';
-      const scanUrl = `${baseUrl}/menu?table=${encodeURIComponent(formData.tableNumber || formData.name)}&menu=${encodeURIComponent(formData.menuId)}`;
+      const baseUrl = window.location.origin;
+      const scanUrl = `${baseUrl}/?table=${encodeURIComponent(formData.tableNumber || formData.name)}&menu=${encodeURIComponent(formData.menuId)}`;
       
       const qrData = {
         ...formData,
@@ -94,8 +94,8 @@ export function QRFormTab({ existingQR, onComplete, onCancel }: Props) {
   };
 
   // Preview URL generator
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://qrazy.example.com';
-  const previewUrl = `${baseUrl}/menu?table=${encodeURIComponent(formData.tableNumber || formData.name || "preview")}&menu=${encodeURIComponent(formData.menuId)}`;
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const previewUrl = `${baseUrl}/?table=${encodeURIComponent(formData.tableNumber || formData.name || "preview")}&menu=${encodeURIComponent(formData.menuId)}`;
 
   return (
     <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">

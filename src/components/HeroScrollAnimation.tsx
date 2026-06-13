@@ -4,10 +4,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/utils/firebase/config";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function HeroScrollAnimation() {
+  const searchParams = useSearchParams();
+  const tableId = searchParams.get("table");
+  const menuId = searchParams.get("menu");
+  
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [images, setImages] = useState<HTMLImageElement[]>([]);
   const frameCount = 180;
@@ -150,7 +155,7 @@ export function HeroScrollAnimation() {
           </p>
           <div className="pointer-events-auto">
             <Link 
-              href="/menu" 
+              href={tableId ? `/menu?table=${tableId}${menuId ? `&menu=${menuId}` : ''}` : "/menu"} 
               className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 rounded-full text-lg font-bold transition-all hover:scale-105 shadow-[0_0_20px_rgba(var(--primary),0.5)]"
             >
               View Menu <ArrowRight className="w-5 h-5" />
