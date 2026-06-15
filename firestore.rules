@@ -8,11 +8,14 @@ service cloud.firestore {
     }
     
     function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) 
+             ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data
+             : null;
     }
     
     function hasRole(role) {
-      return isAuthenticated() && getUserData().role == role;
+      let data = getUserData();
+      return isAuthenticated() && data != null && data.role == role;
     }
     
     function isOwnerOrAdmin() {
@@ -22,7 +25,9 @@ service cloud.firestore {
     // --- Users Collection ---
     match /users/{userId} {
       allow read: if isAuthenticated() && (request.auth.uid == userId || isOwnerOrAdmin());
-      allow write: if isOwnerOrAdmin();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isOwnerOrAdmin() || (isAuthenticated() && request.auth.uid == userId && request.resource.data.role == resource.data.role);
+      allow delete: if isOwnerOrAdmin();
     }
 
     // --- Products Collection ---

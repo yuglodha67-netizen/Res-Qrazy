@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "@/utils/firebase/config";
 
 // Valid roles in the system
@@ -29,39 +29,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let unsubscribeDoc: (() => void) | null = null;
+
     // onAuthStateChanged automatically persists the session and listens for token changes
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       
       if (currentUser) {
         try {
-          // Fetch the user's role from the 'users' collection in Firestore
-          // This ensures backend validation of the role
+          // Listen to the user's role from the 'users' collection in Firestore
           const userDocRef = doc(db, "users", currentUser.uid);
-          const userDoc = await getDoc(userDocRef);
           
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            const rawRole = userData.role;
-            const cleanRole = typeof rawRole === "string" ? rawRole.trim() : rawRole;
-            setRole(cleanRole as UserRole);
-          } else {
-            // Default role if none exists
-            setRole("customer");
-          }
+          unsubscribeDoc = onSnapshot(userDocRef, (userDoc) => {
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              const rawRole = userData.role;
+              const cleanRole = typeof rawRole === "string" ? rawRole.trim() : rawRole;
+              setRole(cleanRole as UserRole);
+            } else {
+              // Default role if none exists
+              setRole("customer");
+            }
+            setLoading(false);
+          }, (err) => {
+            console.error("Failed to fetch user role:", err);
+            setError("Failed to authenticate user role.");
+            setRole(null);
+            setLoading(false);
+          });
         } catch (err) {
-          console.error("Failed to fetch user role:", err);
+          console.error("Failed to setup user role listener:", err);
           setError("Failed to authenticate user role.");
           setRole(null);
+          setLoading(false);
         }
       } else {
         setRole(null);
+        setLoading(false);
+        if (unsubscribeDoc) {
+          unsubscribeDoc();
+          unsubscribeDoc = null;
+        }
       }
-      
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeDoc) {
+        unsubscribeDoc();
+      }
+    };
   }, []);
 
   return (

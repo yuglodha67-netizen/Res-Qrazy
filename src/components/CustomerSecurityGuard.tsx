@@ -14,8 +14,8 @@ export function CustomerSecurityGuard({ children }: { children: React.ReactNode 
   const pathname = usePathname();
 
   useEffect(() => {
-    // If the user is on an owner route, we let the AuthGuard handle it.
-    if (pathname?.startsWith("/owner")) {
+    // If the user is on an owner route or unauthorized page, we let the AuthGuard handle it.
+    if (pathname?.startsWith("/owner") || pathname === "/unauthorized") {
       return;
     }
 
