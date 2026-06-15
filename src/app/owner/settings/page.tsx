@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { 
   Settings, Save, Loader2, Store, User, Shield, Clock, 
   CreditCard, Bell, Palette, MenuSquare, Users, Lock, LifeBuoy,
-  CheckCircle2
+  CheckCircle2, MapPin
 } from "lucide-react";
 import { doc, setDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/utils/firebase/config";
