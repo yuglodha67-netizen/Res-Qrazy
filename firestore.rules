@@ -77,7 +77,8 @@ service cloud.firestore {
     }
     // --- Customer Sessions Collection ---
     match /customer_sessions/{sessionId} {
-      allow read, create: if true;
+      allow read: if true;
+      allow create: if !request.resource.data.keys().hasAny(['location_verified', 'verified_at']) || request.resource.data.location_verified == false;
       allow update, delete: if isOwnerOrAdmin();
     }
   }

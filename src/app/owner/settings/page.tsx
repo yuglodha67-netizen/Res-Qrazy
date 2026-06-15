@@ -14,11 +14,13 @@ import { RestaurantSettings, defaultSettings } from "@/types/settings";
 import { ProfileTab, OperationsTab, MenuTab, BrandingTab } from "./components/TabProfileOps";
 import { AccountTab, SecurityTab, PrivacyTab, NotificationsTab } from "./components/TabAccountSec";
 import { StaffTab, BillingTab, SupportTab } from "./components/TabTeamMisc";
+import { LocationSecurityTab } from "./components/TabLocationSecurity";
 
 const TABS = [
   { id: "profile", label: "Restaurant Profile", icon: Store },
   { id: "account", label: "Account Settings", icon: User },
   { id: "security", label: "Security", icon: Shield },
+  { id: "location_security", label: "Location Security", icon: MapPin },
   { id: "operations", label: "Operations", icon: Clock },
   { id: "billing", label: "Payment & Billing", icon: CreditCard },
   { id: "notifications", label: "Notifications", icon: Bell },
@@ -86,6 +88,7 @@ export default function SettingsDashboard() {
       case "profile": return <ProfileTab settings={settings} onUpdate={handleUpdate} />;
       case "account": return <AccountTab />;
       case "security": return <SecurityTab />;
+      case "location_security": return <LocationSecurityTab />;
       case "operations": return <OperationsTab settings={settings} onUpdate={handleUpdate} />;
       case "billing": return <BillingTab settings={settings} onUpdate={handleUpdate} />;
       case "notifications": return <NotificationsTab settings={settings} onUpdate={handleUpdate} />;

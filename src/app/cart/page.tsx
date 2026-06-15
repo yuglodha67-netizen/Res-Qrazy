@@ -11,8 +11,9 @@ import { collection, doc, onSnapshot, getDocs, query, where } from "firebase/fir
 import { db, auth } from "@/utils/firebase/config";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { LocationGuard } from "@/components/LocationGuard";
 
-export default function CartPage() {
+function CartContent() {
   const router = useRouter();
   const { cart, updateQuantity, updateItemNote, totalPrice, clearCart, removeFromCart } = useCart();
   const [phone, setPhone] = useState("");
@@ -481,5 +482,15 @@ export default function CartPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function CartPage() {
+  return (
+    <React.Suspense fallback={<div className="flex justify-center items-center h-screen animate-pulse text-muted-foreground font-medium">Loading cart...</div>}>
+      <LocationGuard>
+        <CartContent />
+      </LocationGuard>
+    </React.Suspense>
   );
 }

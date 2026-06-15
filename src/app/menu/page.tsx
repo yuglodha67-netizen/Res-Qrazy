@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useCart, MenuItem } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
+import { Header } from "@/components/Header";
+import { LocationGuard } from "@/components/LocationGuard";
 import { ARViewer } from "@/components/ARViewer";
 import { X, AlertTriangle, Search, Filter, Heart, Star, Minus, Plus, ShoppingCart, Info, CheckCircle2, SlidersHorizontal, Box } from "lucide-react";
 import { collection, onSnapshot, query, doc, setDoc } from "firebase/firestore";
@@ -552,7 +554,9 @@ function MenuContent() {
 export default function MenuPage() {
   return (
     <React.Suspense fallback={<div className="flex justify-center items-center h-screen text-muted-foreground animate-pulse font-medium">Loading amazing dishes...</div>}>
-      <MenuContent />
+      <LocationGuard>
+        <MenuContent />
+      </LocationGuard>
     </React.Suspense>
   );
 }
