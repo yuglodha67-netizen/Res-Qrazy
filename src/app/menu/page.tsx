@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useCart, MenuItem } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
-import { Header } from "@/components/Header";
+
 import { LocationGuard } from "@/components/LocationGuard";
 import { ARViewer } from "@/components/ARViewer";
 import { X, AlertTriangle, Search, Filter, Heart, Star, Minus, Plus, ShoppingCart, Info, CheckCircle2, SlidersHorizontal, Box } from "lucide-react";
