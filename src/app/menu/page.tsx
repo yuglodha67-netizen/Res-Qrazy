@@ -12,6 +12,8 @@ import { db, auth } from "@/utils/firebase/config";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
+import { ProductSkeleton } from "@/components/loaders/ProductSkeleton";
+import { GlobalPageLoader } from "@/components/loaders/GlobalPageLoader";
 
 const CATEGORIES = ["All", "Starters", "Mains", "Desserts", "Drinks"];
 
@@ -244,23 +246,7 @@ function MenuContent() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="rounded-xl border bg-card/50 shadow-sm overflow-hidden flex flex-col animate-pulse">
-                <div className="aspect-video w-full bg-muted/50" />
-                <div className="p-5 flex flex-col flex-grow space-y-4">
-                  <div className="flex justify-between items-start">
-                    <div className="h-6 bg-muted/50 rounded w-1/2" />
-                    <div className="h-4 bg-muted/50 rounded w-8" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="h-4 bg-muted/50 rounded w-full" />
-                    <div className="h-4 bg-muted/50 rounded w-4/5" />
-                  </div>
-                  <div className="flex items-center justify-between mt-auto pt-4">
-                    <div className="h-6 bg-muted/50 rounded w-16" />
-                    <div className="h-9 bg-muted/50 rounded-full w-20" />
-                  </div>
-                </div>
-              </div>
+              <ProductSkeleton key={i} />
             ))}
           </div>
         ) : filteredMenu.length === 0 ? (
@@ -553,7 +539,7 @@ function MenuContent() {
 
 export default function MenuPage() {
   return (
-    <React.Suspense fallback={<div className="flex justify-center items-center h-screen text-muted-foreground animate-pulse font-medium">Loading amazing dishes...</div>}>
+    <React.Suspense fallback={<GlobalPageLoader message="Loading amazing dishes..." />}>
       <LocationGuard>
         <MenuContent />
       </LocationGuard>

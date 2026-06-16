@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { ChefHat } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { AuthLoader } from "@/components/loaders/AuthLoader";
 
 const PUBLIC_ROUTES = ["/owner/login", "/owner/register", "/owner/forgot-password"];
 
@@ -30,14 +31,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [loading, user, role, pathname, router]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4 animate-pulse text-primary">
-          <ChefHat className="w-12 h-12" />
-          <span className="font-semibold text-muted-foreground">Authenticating Securely...</span>
-        </div>
-      </div>
-    );
+    return <AuthLoader message="Authenticating Securely..." />;
   }
 
   const isPublicRoute = PUBLIC_ROUTES.includes(pathname);

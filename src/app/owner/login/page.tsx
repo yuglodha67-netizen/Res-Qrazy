@@ -12,6 +12,7 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
+import { ButtonLoader } from "@/components/loaders/ButtonLoader";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -212,7 +213,7 @@ export default function LoginPage() {
               className="w-full py-3.5 px-4 bg-primary hover:bg-primary/90 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 text-primary-foreground font-bold rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                <ButtonLoader label="Signing In..." />
               ) : (
                 <>
                   Sign In to Dashboard

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { collection, onSnapshot, query, limit, orderBy } from "firebase/firestore";
 import { db } from "@/utils/firebase/config";
 import { Loader2 } from "lucide-react";
+import { DashboardSkeleton } from "@/components/loaders/DashboardSkeleton";
 
 import { DashboardHeader } from "./components/dashboard/DashboardHeader";
 import { BusinessOverview } from "./components/dashboard/BusinessOverview";
@@ -70,12 +71,7 @@ export default function OwnerDashboard() {
   };
 
   if (loading && orders.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-100px)] text-muted-foreground">
-        <Loader2 className="w-12 h-12 animate-spin text-primary/50 mb-4" />
-        <p className="font-medium text-lg">Initializing Command Center...</p>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (

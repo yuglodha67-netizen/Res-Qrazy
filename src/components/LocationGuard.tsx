@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MapPin, ShieldAlert, Loader2, Navigation } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/utils/firebase/config";
+import { AuthLoader } from "./loaders/AuthLoader";
 
 interface LocationGuardProps {
   children: React.ReactNode;
@@ -107,47 +108,32 @@ export function LocationGuard({ children }: LocationGuardProps) {
     return <>{children}</>;
   }
 
+  if (status !== "error") {
+    let msg = "Initializing security protocols...";
+    if (status === "requesting") msg = "Requesting location permission to verify your presence at the restaurant...";
+    if (status === "verifying") msg = "Verifying your location securely on our servers...";
+    
+    return <AuthLoader message={msg} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden text-center p-10">
-        
-        {status === "error" ? (
-          <>
-            <div className="inline-flex p-4 bg-red-100 dark:bg-red-500/20 rounded-full mb-6">
-              <ShieldAlert className="w-12 h-12 text-red-600 dark:text-red-500" />
-            </div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-3">
-              Access Denied
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed font-medium">
-              {errorMessage}
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full py-3.5 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all flex items-center justify-center gap-2"
-            >
-              Try Again
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="inline-flex p-4 bg-blue-100 dark:bg-blue-500/20 rounded-full mb-6 relative">
-              <MapPin className="w-12 h-12 text-blue-600 dark:text-blue-500" />
-              <div className="absolute top-0 right-0 w-4 h-4 bg-primary rounded-full animate-ping"></div>
-            </div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-3">
-              Security Check
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed font-medium">
-              {status === "requesting" && "Requesting location permission to verify your presence at the restaurant..."}
-              {status === "verifying" && "Verifying your location securely on our servers..."}
-              {status === "checking" && "Initializing security protocols..."}
-            </p>
-            <div className="flex justify-center">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-          </>
-        )}
+        <div className="inline-flex p-4 bg-red-100 dark:bg-red-500/20 rounded-full mb-6">
+          <ShieldAlert className="w-12 h-12 text-red-600 dark:text-red-500" />
+        </div>
+        <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-3">
+          Access Denied
+        </h1>
+        <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed font-medium">
+          {errorMessage}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="w-full py-3.5 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+        >
+          Try Again
+        </button>
       </div>
     </div>
   );
