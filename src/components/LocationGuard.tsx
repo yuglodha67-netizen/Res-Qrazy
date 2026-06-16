@@ -25,6 +25,13 @@ export function LocationGuard({ children }: LocationGuardProps) {
           return;
         }
 
+        // 1. Check if location security is even enabled
+        const settingsDoc = await getDoc(doc(db, "settings", "location"));
+        if (!settingsDoc.exists() || settingsDoc.data().enabled !== true) {
+          setStatus("verified");
+          return;
+        }
+
         // 1. Check if session is already verified
         const sessionDoc = await getDoc(doc(db, "customer_sessions", sessionId));
         if (sessionDoc.exists()) {
